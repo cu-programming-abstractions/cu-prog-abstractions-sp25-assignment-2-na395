@@ -1,50 +1,133 @@
 #include "RosettaStone.h"
 #include "GUI/SimpleTest.h"
+#include <cmath>
+#include "priorityqueue.h"
 using namespace std;
 
-Map<string, double> kGramsIn(const string& str, int kGramLength) {
-    /* TODO: Delete this comment and the other lines here, then implement
-     * this function.
-     */
-    (void) str;
-    (void) kGramLength;
-    return {};
+Map<string, double> kGramsIn(const string& str, int kGramLength)
+{
+    if (kGramLength <= 0)
+    {
+        error("kGramLength in not positive");
+    }
+
+    Map<string, double> kGramMap;
+
+    if (kGramLength <= str.length())
+    {
+        for (int i = 0; i < (str.length() - (kGramLength - 1)); i++)
+        {
+            kGramMap[str.substr(i, kGramLength)] += 1;
+        }
+    }
+    return kGramMap;
 }
 
-Map<string, double> normalize(const Map<string, double>& input) {
-    /* TODO: Delete this comment and the other lines here, then implement
-     * this function.
-     */
-    (void) input;
-    return {};
+Map<string, double> normalize(const Map<string, double>& input)
+{
+    if (input.isEmpty())
+    {
+        error("Input is empty");
+    }
+
+    double divisor = 0;
+    auto values = input.values();
+
+    for (auto value : values) {
+        divisor += pow(value, 2);
+    }
+
+    if (divisor == 0)
+    {
+        error("All values are zero");
+    }
+
+    divisor = sqrt(divisor);
+    auto Keys = input.keys();
+    Map<string, double> normalizedMap;
+
+    for (auto& key : Keys)
+    {
+        normalizedMap.put(key, input[key] / divisor);
+    }
+
+    return normalizedMap;
 }
 
 Map<string, double> topKGramsIn(const Map<string, double>& source, int numToKeep) {
-    /* TODO: Delete this comment and the other lines here, then implement
-     * this function.
-     */
-    (void) source;
-    (void) numToKeep;
-    return {};
+    if (numToKeep > source.size())
+    {
+        return source;
+    }
+    if (numToKeep < 0)
+    {
+        error("numToKeep is Negative");
+    }
+    Map<string, double> numToKeepMap;
+    if (numToKeep == 0)
+    {
+        return numToKeepMap;
+    }
+
+    //Add elements to Priority Queue
+    PriorityQueue<string> pq;
+    auto Keys = source.keys();
+    for (auto& key : Keys)
+    {
+        pq.enqueue(key, source[key]);
+    }
+
+    int numToRemove = source.size() - numToKeep;
+    for (int i = 0; i < numToRemove; i++)
+    {
+        pq.dequeue();
+    }
+
+    //put values in Map
+    while (pq.size() > 0)
+    {
+        numToKeepMap.put(pq.peek(), pq.peekPriority());
+        pq.dequeue();
+    }
+    return numToKeepMap;
 }
 
 double cosineSimilarityOf(const Map<string, double>& lhs, const Map<string, double>& rhs) {
-    /* TODO: Delete this comment and the other lines here, then implement
-     * this function.
-     */
-    (void) lhs;
-    (void) rhs;
-    return {};
+    // Find common keys
+    Vector <string> CommonKeys;
+    for (auto& key1 : lhs) {
+        if (rhs.containsKey(key1))
+        {
+            CommonKeys.add(key1);
+        }
+    }
+    double cosineSimilarity = 0;
+    for (auto& key : CommonKeys)
+    {
+        cosineSimilarity += lhs[key] * rhs[key];
+    }
+
+    return cosineSimilarity;
 }
 
 string guessLanguageOf(const Map<string, double>& textProfile,
                        const Set<Corpus>& corpora) {
-    /* TODO: Delete this comment and the other lines here, then implement
-     * this function.
-     */
-    (void) textProfile;
-    (void) corpora;
-    return "";
+    if (corpora.isEmpty())
+    {
+        error("Set of corpora is empty");
+    }
+    double Similarity = 0;
+    string language = "Unknown language :(";
+    for (auto& corpus : corpora)
+    {
+        auto SimilarityTemp = cosineSimilarityOf(textProfile, corpus.profile);
+        if (SimilarityTemp > Similarity)
+        {
+            Similarity = SimilarityTemp;
+            language = corpus.name;
+        }
+    }
+    return language;
 }
 
 
@@ -95,11 +178,11 @@ PROVIDED_TEST("kGramsIn works when the text length is one more than the k-gram l
 
 PROVIDED_TEST("kGramsIn works on a sample when k = 1.") {
     Map<string, double> expected = {
-        { "A", 7 },
-        { "B", 2 },
-        { "D", 1 },
-        { "N", 4 },
-    };
+                                    { "A", 7 },
+                                    { "B", 2 },
+                                    { "D", 1 },
+                                    { "N", 4 },
+                                    };
 
     EXPECT_EQUAL(kGramsIn("ABANANABANDANA", 1), expected);
 }
@@ -126,10 +209,10 @@ PROVIDED_TEST("kGramsIn handles non-English strings.") {
      */
     string devanagari = "दे";
     Map<string, double> expected = {
-      {"\244\246\340", 1},
-      {"\246\340\245", 1},
-      {"\340\244\246", 1},
-      {"\340\245\207", 1}
+        {"\244\246\340", 1},
+        {"\246\340\245", 1},
+        {"\340\244\246", 1},
+        {"\340\245\207", 1}
     };
     EXPECT_EQUAL(kGramsIn(devanagari, 3), expected);
 
@@ -180,8 +263,8 @@ PROVIDED_TEST("kGramsIn works on large inputs.") {
     }
 
     EXPECT_COMPLETES_IN(1.0,
-        EXPECT_NO_ERROR(kGramsIn(largeString, 50));
-    );
+                        EXPECT_NO_ERROR(kGramsIn(largeString, 50));
+                        );
 }
 
 PROVIDED_TEST("normalize does not add or remove keys.") {
@@ -202,47 +285,47 @@ PROVIDED_TEST("normalize does not add or remove keys.") {
 
 PROVIDED_TEST("normalize works on positive numbers.") {
     Map<string, double> scores = {
-        { "C", 1 },
-        { "O", 1 },
-        { "N", 1 },
-        { "E", 1 },
-    };
+                                  { "C", 1 },
+                                  { "O", 1 },
+                                  { "N", 1 },
+                                  { "E", 1 },
+                                  };
     Map<string, double> expected = {
-        { "C", 0.5 },
-        { "O", 0.5 },
-        { "N", 0.5 },
-        { "E", 0.5 },
-    };
+                                    { "C", 0.5 },
+                                    { "O", 0.5 },
+                                    { "N", 0.5 },
+                                    { "E", 0.5 },
+                                    };
 
     EXPECT_EQUAL(normalize(scores), expected);
 }
 
 PROVIDED_TEST("normalize works on negative numbers.") {
     Map<string, double> scores = {
-        { "C", -1 },
-        { "O", -1 },
-        { "N", -1 },
-        { "E", -1 },
-    };
+                                  { "C", -1 },
+                                  { "O", -1 },
+                                  { "N", -1 },
+                                  { "E", -1 },
+                                  };
     Map<string, double> expected = {
-        { "C", -0.5 },
-        { "O", -0.5 },
-        { "N", -0.5 },
-        { "E", -0.5 },
-    };
+                                    { "C", -0.5 },
+                                    { "O", -0.5 },
+                                    { "N", -0.5 },
+                                    { "E", -0.5 },
+                                    };
 
     EXPECT_EQUAL(normalize(scores), expected);
 }
 
 PROVIDED_TEST("normalize works on unequal values.") {
     Map<string, double> scores = {
-        { "O",  3 },
-        { "N", -4 },
-    };
+                                  { "O",  3 },
+                                  { "N", -4 },
+                                  };
     Map<string, double> expected = {
-        { "O",  0.6 },
-        { "N", -0.8 },
-    };
+                                    { "O",  0.6 },
+                                    { "N", -0.8 },
+                                    };
 
     EXPECT_EQUAL(normalize(scores), expected);
 }
@@ -307,8 +390,8 @@ PROVIDED_TEST("normalize handles large inputs.") {
     } while (next_permutation(chars.begin(), chars.end()));
 
     EXPECT_COMPLETES_IN(2.0,
-        EXPECT_NO_ERROR(normalize(freqMap));
-    );
+                        EXPECT_NO_ERROR(normalize(freqMap));
+                        );
 }
 
 PROVIDED_TEST("topKGramsIn finds the most frequent k-gram.") {
@@ -393,12 +476,12 @@ PROVIDED_TEST("topKGramsIn works even if frequencies are negative.") {
     };
 
     Map<string, double> expected = {
-        { "A",  2 },
-        { "B",  1 },
-        { "C",  0 },
-        { "D", -1 },
-        { "E", -2 },
-    };
+                                    { "A",  2 },
+                                    { "B",  1 },
+                                    { "C",  0 },
+                                    { "D", -1 },
+                                    { "E", -2 },
+                                    };
 
     EXPECT_EQUAL(topKGramsIn(input, 5), expected);
 }
@@ -515,27 +598,27 @@ PROVIDED_TEST("topKGramsIn handles large inputs.") {
 
 
     EXPECT_COMPLETES_IN(2.0,
-        EXPECT_EQUAL(topKGramsIn(freqMap, 137).size(), 137);
-    );
+                        EXPECT_EQUAL(topKGramsIn(freqMap, 137).size(), 137);
+                        );
 }
 
 PROVIDED_TEST("cosineSimilarityOf works with one shared key.") {
     Map<string, double> one = {
-        { "A",  1 },
-    };
+                               { "A",  1 },
+                               };
     Map<string, double> two = {
-        { "A",  1 },
-    };
+                               { "A",  1 },
+                               };
     EXPECT_EQUAL(cosineSimilarityOf(one, two), 1);
 }
 
 PROVIDED_TEST("cosineSimilarityOf works with two maps with non-overlapping keys.") {
     Map<string, double> one = {
-        { "A",  1 },
-    };
+                               { "A",  1 },
+                               };
     Map<string, double> two = {
-        { "B",  1 },
-    };
+                               { "B",  1 },
+                               };
     EXPECT_EQUAL(cosineSimilarityOf(one, two), 0);
 }
 
@@ -544,18 +627,18 @@ PROVIDED_TEST("cosineSimilarityOf works where keys are present in RHS but not LH
      * all inputs to cosineSimilarityOf. This is just for testing purposes.
      */
     Map<string, double> one = {
-        { "O",  1 },
-        { "C",  2 },
-        { "E",  3 },
-        { "A",  4 },
-        { "N",  5 },
-    };
+                               { "O",  1 },
+                               { "C",  2 },
+                               { "E",  3 },
+                               { "A",  4 },
+                               { "N",  5 },
+                               };
     Map<string, double> two = {
-        { "C", -2 },
-        { "E", -3 },
-        { "A", -4 },
-        { "N", -5 },
-    };
+                               { "C", -2 },
+                               { "E", -3 },
+                               { "A", -4 },
+                               { "N", -5 },
+                               };
     EXPECT_EQUAL(cosineSimilarityOf(one, two), -54);
 }
 
@@ -564,18 +647,18 @@ PROVIDED_TEST("cosineSimilarityOf works where keys are present in LHS but not RH
      * all inputs to cosineSimilarityOf. This is just for testing purposes.
      */
     Map<string, double> one = {
-        { "C",  2 },
-        { "E",  3 },
-        { "A",  4 },
-        { "N",  5 },
-    };
+                               { "C",  2 },
+                               { "E",  3 },
+                               { "A",  4 },
+                               { "N",  5 },
+                               };
     Map<string, double> two = {
-        { "O",  1 },
-        { "C", -2 },
-        { "E", -3 },
-        { "A", -4 },
-        { "N", -5 },
-    };
+                               { "O",  1 },
+                               { "C", -2 },
+                               { "E", -3 },
+                               { "A", -4 },
+                               { "N", -5 },
+                               };
     EXPECT_EQUAL(cosineSimilarityOf(one, two), -54);
 }
 
@@ -584,15 +667,15 @@ PROVIDED_TEST("cosineSimilarityOf works with keys missing from both sides.") {
      * all inputs to cosineSimilarityOf. This is just for testing purposes.
      */
     Map<string, double> one = {
-        { "C",  2 },
-        { "E",  3 },
-        { "A",  4 },
-    };
+                               { "C",  2 },
+                               { "E",  3 },
+                               { "A",  4 },
+                               };
     Map<string, double> two = {
-        { "O",  1 },
-        { "E", -3 },
-        { "A", -4 },
-    };
+                               { "O",  1 },
+                               { "E", -3 },
+                               { "A", -4 },
+                               };
     EXPECT_EQUAL(cosineSimilarityOf(one, two), -25);
 }
 
@@ -638,16 +721,16 @@ PROVIDED_TEST("cosineSimilarityOf works on large inputs.") {
     } while (next_permutation(chars.begin(), chars.end()));
 
     EXPECT_COMPLETES_IN(2.0,
-        EXPECT_NO_ERROR(cosineSimilarityOf(freqMap, freqMap));
-    );
+                        EXPECT_NO_ERROR(cosineSimilarityOf(freqMap, freqMap));
+                        );
 }
 
 PROVIDED_TEST("guessLanguageOf works with perfect similarity.") {
     Corpus o = { "Language O", {{ "O", 1 }} },
-           c = { "Language C", {{ "C", 1 }} },
-           e = { "Language E", {{ "E", 1 }} },
-           a = { "Language A", {{ "A", 1 }} },
-           n = { "Language N", {{ "N", 1 }} };
+        c = { "Language C", {{ "C", 1 }} },
+        e = { "Language E", {{ "E", 1 }} },
+        a = { "Language A", {{ "A", 1 }} },
+        n = { "Language N", {{ "N", 1 }} };
 
     EXPECT_EQUAL(guessLanguageOf({{ "O", 1 }}, {o, c, e, a, n}), o.name);
     EXPECT_EQUAL(guessLanguageOf({{ "C", 1 }}, {o, c, e, a, n}), c.name);
@@ -658,10 +741,10 @@ PROVIDED_TEST("guessLanguageOf works with perfect similarity.") {
 
 PROVIDED_TEST("guessLanguageOf works with imperfect similarity.") {
     Corpus o = { "Language O", {{ "O", 0.8 }, { "C", 0.6 }} },
-           c = { "Language C", {{ "C", 0.8 }, { "E", 0.6 }} },
-           e = { "Language E", {{ "E", 0.8 }, { "A", 0.6 }} },
-           a = { "Language A", {{ "A", 0.8 }, { "N", 0.6 }} },
-           n = { "Language N", {{ "N", 0.8 }, { "O", 0.6 }} };
+        c = { "Language C", {{ "C", 0.8 }, { "E", 0.6 }} },
+        e = { "Language E", {{ "E", 0.8 }, { "A", 0.6 }} },
+        a = { "Language A", {{ "A", 0.8 }, { "N", 0.6 }} },
+        n = { "Language N", {{ "N", 0.8 }, { "O", 0.6 }} };
 
     EXPECT_EQUAL(guessLanguageOf({{"O", 1}}, {o, c, e, a, n}), o.name);
     EXPECT_EQUAL(guessLanguageOf({{"C", 1}}, {o, c, e, a, n}), c.name);

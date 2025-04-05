@@ -1,28 +1,35 @@
 Q1:
+Below are two examples of texts that are clearly written in English but have a writing style distinct from that of a Bible translation:
 
+Excerpt from "Alice’s Adventures in Wonderland" by Lewis Carroll
+"‘Curiouser and curiouser!’ cried Alice (she was so much surprised, that for the moment she quite forgot how to speak good English); ‘now I’m opening out like the largest telescope that ever was! Good-bye, feet!’ (for when she looked down at her feet, they seemed to be almost out of sight, they were getting so far off)."
+(Carroll, Lewis. Alice’s Adventures in Wonderland. Macmillan, 1865.)
 
+Excerpt from "A Brief History of Time" by Stephen Hawking
+"If time travel is possible, where are the tourists from the future? It seems there is a chronological protection agency, which prevents the appearance of closed timelike curves and so makes the universe safe for historians."
+(Hawking, Stephen. A Brief History of Time. Bantam Books, 1988.)
+
+These texts differ significantly from Bible translations because they lack the solemn, archaic tone and structured poeticism often found in scripture. Carroll’s whimsical and playful style contrasts with biblical gravity, while Hawking’s analytical, scientific prose is modern and speculative rather than moralistic or theological.
 
 
 Q2:
+A piece of text where a Wikipedia-trained translation app might fail is a set of emergency medical instructions given in highly informal, colloquial, or slang-heavy language, such as:
 
+"Yo, this dude’s passed out cold—ain’t breathing right! You gotta press hard, like, real hard, right in the middle of his chest, fast, like to the beat of Stayin’ Alive—don’t stop till help’s here!"
+
+If the translation system is trained only on Wikipedia-style text, it may struggle with slang, contractions, and non-standard grammar, potentially outputting an inaccurate or overly formal translation that lacks urgency or clarity. In a real-life emergency, a poor translation could confuse a non-English speaker attempting to perform CPR, delaying proper treatment and increasing the risk of serious harm or death. This highlights the danger of training a translation app on data that does not represent all linguistic registers, particularly informal and high-stakes communication.
 
 
 
 Q3:
-
+Including the limited texts as training data could provide several benefits,Adding limited or specialized texts to training data can offer distinct advantages, particularly for users who need translations of highly specialized or niche writing styles. For example, if the limited texts include legal documents, technical manuals, or emergency response guides, professionals such as lawyers, engineers, and first responders would benefit from more accurate translations in their fields. Additionally, historical texts or regional dialects included in the training data could help preserve linguistic diversity and improve accessibility for speakers of less commonly translated languages. Furthermore, including a broader range of texts could make the translation system more adaptable to different contexts, benefiting travelers, educators, and businesses that communicate across cultural and linguistic boundaries.
 
 
 
 Q4:
-
+There are potential downsides to including the limited texts in training data. If the texts contain biases, outdated information, or culturally specific nuances, the translation system might propagate inaccuracies that misinform users. For example, if legal texts from only one country are included, the system might produce misleading translations when applied to different legal systems, potentially harming individuals relying on the output for legal decisions. Additionally, including highly informal or non-standard language could lead to inconsistent or unreliable translations in professional settings, reducing trust in the tool. Lastly, expanding training data without careful filtering could introduce noise, making it harder for the system to prioritize accuracy in high-stakes situations, such as medical or emergency scenarios.
 
 
 
 Q5:
-
-
-
-
-
-
-
+To balance the benefits and downsides, the limited texts should be selectively included as training data, with proper labeling and weighting according to their intended use. For example, specialized texts like legal or medical documents would need to be tagged to ensure they only influence translations in relevant contexts. Informal or slang-heavy texts could be included to improve translations for casual conversations but should not impact professional or academic translations. Additionally, mechanisms should be implemented to detect uncertainty in translations, prompting users to verify critical information when necessary. This approach allows the system to expand its versatility while minimizing the risk of misinformation or inappropriate translations in high-stakes scenarios. By carefully curating the data, the translation system can offer both accuracy and adaptability across various use cases.
